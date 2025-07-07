@@ -2,6 +2,8 @@
 
 Taskfy es una aplicación tipo Kanban creada con HTML, CSS y JavaScript puro. Permite crear contenedores (listas), agregar tareas, editarlas y eliminarlas, todo sin necesidad de frameworks ni librerías externas.
 
+=>Preview: https://landolf1.github.io/taskfy/
+
 ## 🚀 Características
 
 - Crear contenedores personalizados.
