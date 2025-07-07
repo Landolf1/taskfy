@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Taskfy</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #ffffff;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      height: 40px;
+      padding: 0 10px;
+      margin-bottom: 50px;
+    }
+
+    #title {
+      color: #38069a;
+    }
+
+    #addTask {
+      padding: 10px 20px;
+      background-color: #38069a;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #main {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+      min-height: 300px;
+      width: 100%;
+    }
+
+    .tasksList {
+      display: flex;
+      flex-direction: column;
+      width: 30%;
+      height: 60%;
+      background-color: #F1F5F9;
+      border-radius: 10px;
+    }
+
+    .tasksList .content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 15px;
+      gap: 10px;
+    }
+
+    .menu {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      height: 40px;
+      padding: 0 10px;
+      border-bottom: 1px solid #E5E7EB;
+    }
+
+    .menu button {
+      border: none;
+      background-color: transparent;
+      cursor: pointer;
+      height: 20px;
+      width: 20px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 300px;
+      max-width: 90%;
+    }
+
+    .modal-content h3 {
+      margin-bottom: 20px;
+      color: #38069a;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .modal-content button {
+      width: 100%;
+      padding: 10px;
+      background-color: #38069a;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .modal-content button:hover {
+      background-color: #2d057e;
+    }
+
+    #cards {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      padding-top: 10px;
+      gap: 20px;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 85%;
+      min-height: 50px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #cardTitle {
+      padding: 10px;
+    }
+
+    .custom-checkbox input[type="checkbox"] {
+      appearance: none;
+      width: 0;
+      height: 0;
+      opacity: 0;
+      position: absolute;
+    }
+
+    .custom-checkbox .checkmark {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .custom-checkbox input[type="checkbox"]:checked + .checkmark {
+      background-color: #6ecc20;
+      border: none;
+    }
+
+    .custom-checkbox .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+      left: 6px;
+      top: 2px;
+      width: 6px;
+      height: 12px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .custom-checkbox input:checked + .checkmark::after {
+      display: block;
+    }
+
+    .addCard {
+      padding: 10px 20px;
+      background-color: #38069a;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .menuContext {
+        position: absolute;
+        background-color: #ffffff;
+        width: 100px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        display: none;
+        flex-direction: column;
+        top: 30px;
+        right: 0;
+        z-index: 10;
+    }
+
+    .menuContext a {
+        padding: 10px;
+        text-decoration: none;
+        color: #333;
+        border-bottom: 1px solid #ccc;
+        cursor: pointer;
+    }
+
+    .menuContext a:hover {
+        background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+  <div class="modal" id="containerModal">
+    <div class="modal-content">
+      <h3>Create Container</h3>
+      <input type="text" id="containerName" placeholder="Enter container name" />
+      <button id="saveContainer">Create</button>
+    </div>
+  </div>
+
+  <div class="modal" id="cardModal">
+    <div class="modal-content">
+      <h3>Create Card</h3>
+      <input type="text" id="cardName" placeholder="Enter card name" />
+      <button id="saveCard">Create</button>
+    </div>
+  </div>
+
+  <header>
+    <h1 id="title">Taskfy</h1>
+    <button id="addTask">Add Container</button>
+  </header>
+
+  <div id="main">
+    <p id="emptyMessage" style="margin: auto; color: gray; font-size: 1.2rem;">Create a new container</p>
+    <div class="menuContext">
+        <a href="#" id="edit">Editar</a>
+        <a href="#" id="delete">Borrar</a>
+    </div>
+  </div>
+
+  <script>
+    const containerModal = document.getElementById('containerModal');
+    const cardModal = document.getElementById('cardModal');
+    const containerNameInput = document.getElementById('containerName');
+    const cardNameInput = document.getElementById('cardName');
+    const saveContainerBtn = document.getElementById('saveContainer');
+    const saveCardBtn = document.getElementById('saveCard');
+    const main = document.getElementById('main');
+    const menuContext = document.querySelector('.menuContext');
+
+    let currentContainer = null;
+    let currentTitle = null;
+
+    document.getElementById('addTask').addEventListener('click', () => {
+      containerModal.style.display = 'block';
+    });
+
+    saveContainerBtn.addEventListener('click', () => {
+      const name = containerNameInput.value.trim();
+      if (!name) return;
+      createContainer(name);
+      containerNameInput.value = "";
+      containerModal.style.display = 'none';
+    });
+
+    //Configurar botones del menú contextual fuera del evento click<<<<
+    const deleteBtn = document.getElementById('delete');
+    const editBtn = document.getElementById('edit');
+
+    //boton delete.
+    deleteBtn.addEventListener('click', () => {
+      if (!currentContainer) return;
+
+      const confirmDelete = confirm('Are you sure you want to delete this container?');
+      if (confirmDelete) {
+        currentContainer.remove();
+      }
+      menuContext.style.display = 'none';
+    });
+
+    //boton edit.
+    editBtn.addEventListener('click', () => {
+      if (!currentTitle) return;
+
+      const input = document.createElement('input');
+      input.value = currentTitle.textContent;
+      input.style.flexGrow = 1;
+      input.style.fontSize = '1rem';
+      input.style.border = '1px solid #ccc';
+      input.style.borderRadius = '5px';
+      input.style.padding = '5px';
+      input.style.width = '100%';
+
+      currentTitle.parentElement.replaceChild(input, currentTitle);
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          currentTitle.textContent = input.value;
+          input.parentElement.replaceChild(currentTitle, input);
+        }
+      });
+
+      input.addEventListener('blur', () => {
+        currentTitle.textContent = input.value;
+        input.parentElement.replaceChild(currentTitle, input);
+      });
+
+      input.focus();
+      menuContext.style.display = 'none';
+    });
+
+    //ocultar el menú contextual al hacer clic fuera de él.
+    document.addEventListener('click', () => {
+      menuContext.style.display = 'none';
+    });
+
+    //funcion para crear contenedor.
+    function createContainer(name) {
+      const container = document.createElement('div');
+      container.classList.add('tasksList');
+      container.id = 'container-' + Date.now();
+
+      const menu = document.createElement('div');
+      menu.classList.add('menu');
+
+      const title = document.createElement('p');
+      title.textContent = name;
+
+      const btn = document.createElement('button');
+      btn.textContent = '⋮';
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+
+        currentContainer = container;
+        currentTitle = title;
+
+        const rect = btn.getBoundingClientRect();
+        menuContext.style.position = 'absolute';
+        menuContext.style.top = `${rect.bottom + window.scrollY}px`;
+        menuContext.style.left = `${rect.right - 100}px`;
+        menuContext.style.display = 'flex';
+      });
+
+      menu.appendChild(title);
+      menu.appendChild(btn);
+
+      const content = document.createElement('div');
+      content.classList.add('content');
+      content.appendChild(menu);
+
+      const cards = document.createElement('div');
+      cards.id = 'cards';
+      content.appendChild(cards);
+
+      const addCard = document.createElement('button');
+      addCard.className = 'addCard';
+      addCard.textContent = 'Add Card';
+
+      addCard.addEventListener('click', () => {
+        cardModal.style.display = 'block';
+        cardModal.dataset.currentContainer = container.id;
+      });
+
+      container.appendChild(content);
+      container.appendChild(addCard);
+      main.appendChild(container);
+
+      const emptyMsg = document.getElementById('emptyMessage');
+      if (emptyMsg) emptyMsg.remove();
+    }
+
+    //evento para crear tarjeta.
+    saveCardBtn.addEventListener('click', () => {
+      const name = cardNameInput.value.trim();
+      if (!name) return;
+
+      const containerId = cardModal.dataset.currentContainer;
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const cardTitle = document.createElement('div');
+      cardTitle.id = 'cardTitle';
+      cardTitle.textContent = name;
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+
+      const label = document.createElement('label');
+      label.className = 'custom-checkbox';
+      const span = document.createElement('span');
+      span.className = 'checkmark';
+
+      label.appendChild(checkbox);
+      label.appendChild(span);
+
+      card.appendChild(cardTitle);
+      card.appendChild(label);
+
+      container.querySelector('#cards').appendChild(card);
+
+      cardNameInput.value = '';
+      cardModal.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
